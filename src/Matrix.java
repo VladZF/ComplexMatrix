@@ -1,16 +1,16 @@
 public class Matrix {
     private Complex[][] matrix;
 
-    private int n = 0, m = 0;
+    private int rowsCount = 0, columnsCount = 0;
 
-    public Matrix(int n, int m) {
-        if (n <= 0 || m <= 0)
+    public Matrix(int RowsCount, int columnsCount) {
+        if (RowsCount <= 0 || columnsCount <= 0)
             throw new IllegalArgumentException("Number of Rows/Columns must be positive number");
-        this.n = n;
-        this.m = m;
-        matrix = new Complex[n][m];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
+        this.rowsCount = RowsCount;
+        this.columnsCount = columnsCount;
+        matrix = new Complex[RowsCount][columnsCount];
+        for (int i = 0; i < RowsCount; i++) {
+            for (int j = 0; j < columnsCount; j++) {
                 matrix[i][j] = new Complex();
             }
         }
@@ -19,9 +19,9 @@ public class Matrix {
     @Override
     public String toString() {
         StringBuilder info = new StringBuilder();
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < rowsCount; i++) {
             info.append("[");
-            for (int j = 0; j < m; j++) {
+            for (int j = 0; j < columnsCount; j++) {
                 info.append(matrix[i][j].toString()).append(", ");
             }
             info.append("\b\b]\n");
@@ -38,20 +38,20 @@ public class Matrix {
     }
 
     public int getRowsCount() {
-        return n;
+        return rowsCount;
     }
 
     public int getColumnsCount() {
-        return m;
+        return columnsCount;
     }
 
     public Matrix add(Matrix other) {
-        if (this.n != other.n || this.m != other.m) {
+        if (this.rowsCount != other.rowsCount || this.columnsCount != other.columnsCount) {
             throw new IllegalArgumentException("Sizes are different");
         }
-        Matrix newMatrix = new Matrix(n, m);
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
+        Matrix newMatrix = new Matrix(rowsCount, columnsCount);
+        for (int i = 0; i < rowsCount; i++) {
+            for (int j = 0; j < columnsCount; j++) {
                 newMatrix.matrix[i][j] = matrix[i][j].add(other.matrix[i][j]);
             }
         }
@@ -59,11 +59,11 @@ public class Matrix {
     }
 
     public Matrix subtract(Matrix other) {
-        if (this.n != other.n || this.m != other.m)
+        if (this.rowsCount != other.rowsCount || this.columnsCount != other.columnsCount)
             throw new IllegalArgumentException("Sizes are different");
-        Matrix newMatrix = new Matrix(n, m);
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
+        Matrix newMatrix = new Matrix(rowsCount, columnsCount);
+        for (int i = 0; i < rowsCount; i++) {
+            for (int j = 0; j < columnsCount; j++) {
                 newMatrix.matrix[i][j] = matrix[i][j].subtract(other.matrix[i][j]);
             }
         }
@@ -71,9 +71,9 @@ public class Matrix {
     }
 
     public Matrix multiplyWithNumber(double lambda) {
-        Matrix newMatrix = new Matrix(n, m);
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
+        Matrix newMatrix = new Matrix(rowsCount, columnsCount);
+        for (int i = 0; i < rowsCount; i++) {
+            for (int j = 0; j < columnsCount; j++) {
                 newMatrix.matrix[i][j] = matrix[i][j].setScale(lambda);
             }
         }
@@ -81,12 +81,12 @@ public class Matrix {
     }
 
     public Matrix multiply(Matrix other) {
-        if (m != other.n)
+        if (columnsCount != other.rowsCount)
             throw new IllegalArgumentException("columns count in first matrix and rows count in second are different");
-        Matrix newMatrix = new Matrix(n, other.m);
-        for (int i = 0; i < newMatrix.n; i++) {
-            for (int j = 0; j < newMatrix.m; j++) {
-                for (int k = 0; k < m; k++) {
+        Matrix newMatrix = new Matrix(rowsCount, other.columnsCount);
+        for (int i = 0; i < newMatrix.rowsCount; i++) {
+            for (int j = 0; j < newMatrix.columnsCount; j++) {
+                for (int k = 0; k < columnsCount; k++) {
                     Complex z = matrix[i][k].multiply(other.matrix[k][j]);
                     newMatrix.matrix[i][j] = newMatrix.matrix[i][j].add(z);
                 }
@@ -97,15 +97,15 @@ public class Matrix {
 
 
     private static Matrix getMinorMatrix(Matrix matrix, int column) {
-        Matrix minor = new Matrix(matrix.n - 1, matrix.m - 1);
+        Matrix minor = new Matrix(matrix.rowsCount - 1, matrix.columnsCount - 1);
         int counter = 0;
-        for (int i = 1; i < matrix.n; i++) {
-            for (int j = 0; j < matrix.m; j++) {
+        for (int i = 1; i < matrix.rowsCount; i++) {
+            for (int j = 0; j < matrix.columnsCount; j++) {
                 if (j == column) {
                     continue;
                 }
-                int newI = counter / minor.n;
-                int newJ = counter % minor.n;
+                int newI = counter / minor.rowsCount;
+                int newJ = counter % minor.rowsCount;
                 minor.matrix[newI][newJ] = new Complex(matrix.matrix[i][j]);
                 counter++;
             }
@@ -113,10 +113,10 @@ public class Matrix {
         return minor;
     }
     private static Complex determinant_helper(Matrix matrix) {
-        if (matrix.n == 1)
+        if (matrix.rowsCount == 1)
             return matrix.matrix[0][0];
         Complex result = new Complex();
-        for (int i = 0; i < matrix.n; i++) {
+        for (int i = 0; i < matrix.rowsCount; i++) {
             Matrix minor = getMinorMatrix(matrix, i);
             result = result.add(matrix.matrix[0][i]
                     .setScale(Math.pow(-1, i + 2))
@@ -126,9 +126,9 @@ public class Matrix {
     }
 
     public Matrix transpose() {
-        Matrix T = new Matrix(m, n);
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
+        Matrix T = new Matrix(columnsCount, rowsCount);
+        for (int i = 0; i < columnsCount; i++) {
+            for (int j = 0; j < rowsCount; j++) {
                 T.matrix[i][j] = new Complex(matrix[j][i]);
             }
         }
@@ -136,7 +136,7 @@ public class Matrix {
     }
 
     public Complex determinant() {
-        if (m != n)
+        if (columnsCount != rowsCount)
             throw new ClassFormatError("Matrix is not square. Impossible to get determinant");
         return determinant_helper(this);
     }
