@@ -1,6 +1,6 @@
 public class Complex {
-    public double real;
-    public double imagine;
+    private double real;
+    private double imagine;
 
     public Complex() {
         real = 0;
@@ -16,6 +16,10 @@ public class Complex {
     public Complex(Complex other) {
         real = other.real;
         imagine = other.imagine;
+    }
+
+    public boolean equals(Complex other) {
+        return this.real == other.real && this.imagine == other.imagine;
     }
 
     @Override
@@ -41,6 +45,11 @@ public class Complex {
 
         return info;
     }
+
+    public double getReal() { return real; }
+    public double getImagine() { return imagine; }
+    public void setReal(double value) { real = value; }
+    public  void setImagine(double value) { imagine = value; }
 
 
     public Complex add(Complex other) {
@@ -69,6 +78,8 @@ public class Complex {
     }
 
     public Complex divideBy(Complex other) {
+        if (other.equals(new Complex(0, 0)))
+            throw new ArithmeticException("/ by zero");
         Complex _other = other.conjugate();
         var divisor = other.multiply(_other).real;
         Complex result = this.multiply(_other);
@@ -82,6 +93,10 @@ public class Complex {
     }
 
     public double argument() {
+        if (real == 0 && imagine > 0)
+            return Math.PI / 2;
+        else if (real == 0 && imagine < 0)
+            return -Math.PI / 2;
         return Math.atan(imagine / real);
     }
 }

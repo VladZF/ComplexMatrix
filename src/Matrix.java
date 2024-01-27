@@ -4,10 +4,8 @@ public class Matrix {
     private int n = 0, m = 0;
 
     public Matrix(int n, int m) {
-        if (n <= 0 || m <= 0) {
-            System.out.println("Number of Rows/Columns must be positive number");
-            return;
-        }
+        if (n <= 0 || m <= 0)
+            throw new IllegalArgumentException("Number of Rows/Columns must be positive number");
         this.n = n;
         this.m = m;
         matrix = new Complex[n][m];
@@ -32,11 +30,11 @@ public class Matrix {
     }
 
     public void set(int row, int column, Complex value) {
-        matrix[row][column] = value;
+        matrix[row][column] = new Complex(value);
     }
 
     public Complex get(int row, int column) {
-        return matrix[row][column];
+        return new Complex(matrix[row][column]);
     }
 
     public int getRowsCount() {
@@ -49,8 +47,7 @@ public class Matrix {
 
     public Matrix add(Matrix other) {
         if (this.n != other.n || this.m != other.m) {
-            System.out.println("Sizes are different");
-            return null;
+            throw new IllegalArgumentException("Sizes are different");
         }
         Matrix newMatrix = new Matrix(n, m);
         for (int i = 0; i < n; i++) {
@@ -62,10 +59,8 @@ public class Matrix {
     }
 
     public Matrix subtract(Matrix other) {
-        if (this.n != other.n || this.m != other.m) {
-            System.out.println("Sizes are different");
-            return null;
-        }
+        if (this.n != other.n || this.m != other.m)
+            throw new IllegalArgumentException("Sizes are different");
         Matrix newMatrix = new Matrix(n, m);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
@@ -86,10 +81,8 @@ public class Matrix {
     }
 
     public Matrix multiply(Matrix other) {
-        if (m != other.n) {
-            System.out.println("columns count in first matrix and rows count in second are different");
-            return null;
-        }
+        if (m != other.n)
+            throw new IllegalArgumentException("columns count in first matrix and rows count in second are different");
         Matrix newMatrix = new Matrix(n, other.m);
         for (int i = 0; i < newMatrix.n; i++) {
             for (int j = 0; j < newMatrix.m; j++) {
@@ -103,17 +96,17 @@ public class Matrix {
     }
 
 
-    private static Matrix getMinorMatrix(Matrix matrix, int row, int column) {
+    private static Matrix getMinorMatrix(Matrix matrix, int column) {
         Matrix minor = new Matrix(matrix.n - 1, matrix.m - 1);
         int counter = 0;
-        for (int i = 0; i < matrix.n; i++) {
+        for (int i = 1; i < matrix.n; i++) {
             for (int j = 0; j < matrix.m; j++) {
-                if (i == row || j == column) {
+                if (j == column) {
                     continue;
                 }
                 int newI = counter / minor.n;
                 int newJ = counter % minor.n;
-                minor.matrix[newI][newJ] = matrix.matrix[i][j];
+                minor.matrix[newI][newJ] = new Complex(matrix.matrix[i][j]);
                 counter++;
             }
         }
@@ -124,7 +117,7 @@ public class Matrix {
             return matrix.matrix[0][0];
         Complex result = new Complex();
         for (int i = 0; i < matrix.n; i++) {
-            Matrix minor = getMinorMatrix(matrix, 0, i);
+            Matrix minor = getMinorMatrix(matrix, i);
             result = result.add(matrix.matrix[0][i]
                     .setScale(Math.pow(-1, i + 2))
                     .multiply(determinant_helper(minor)));
@@ -132,11 +125,19 @@ public class Matrix {
         return result;
     }
 
-    public Complex determinant() {
-        if (m != n) {
-            System.out.println("Matrix is not square. Impossible to get determinant");
-            return null;
+    public Matrix transpose() {
+        Matrix T = new Matrix(m, n);
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                T.matrix[i][j] = new Complex(matrix[j][i]);
+            }
         }
+        return T;
+    }
+
+    public Complex determinant() {
+        if (m != n)
+            throw new ClassFormatError("Matrix is not square. Impossible to get determinant");
         return determinant_helper(this);
     }
 }
